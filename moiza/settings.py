@@ -89,7 +89,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'moiza',
-        'USER': 'progres',
+        'USER': 'postgres',
         'PASSWORD': 'moiza1!',
         'HOST': 'localhost',
         'PORT': '5432',

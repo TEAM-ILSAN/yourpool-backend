@@ -132,6 +132,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+../moiza/bin/
 
 # Spyder project settings
 .spyderproject
@@ -295,3 +296,5 @@ Temporary Items
 # Support for Project snippet scope
 
 # End of https://www.toptal.com/developers/gitignore/api/python,django,visualstudiocode,macos
+
+../moiza/pyvenv.cfg
