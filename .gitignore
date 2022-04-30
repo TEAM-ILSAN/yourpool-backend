@@ -297,5 +297,5 @@ Temporary Items
 
 # End of https://www.toptal.com/developers/gitignore/api/python,django,visualstudiocode,macos
 
-../moiza/pyvenv.cfg
-manage.py
+/moiza/pyvenv.cfg
+/noiza/bin
