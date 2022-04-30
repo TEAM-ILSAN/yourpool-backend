@@ -88,7 +88,7 @@ WSGI_APPLICATION = 'moiza.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'moiza',
+        'NAME': 'postgres',
         'USER': 'postgres',
         'PASSWORD': 'moiza1!',
         'HOST': 'localhost',
