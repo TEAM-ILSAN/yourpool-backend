@@ -9,24 +9,25 @@
 <body>
     <button onclick="kakaoLogin()">kakao login!</button>
 </body>
+<script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
 <script>
-    window.kakao.init("b79751d8dc327b9af0681d23232760ce");
-
+    window.Kakao.init('b79751d8dc327b9af0681d23232760ce');
+</script>
+<script>
     function kakaoLogin(){
-        window.kakao.Auth.login({
-            scope: 'profile_nickname, account_email, gender, birthday',
+        window.Kakao.Auth.login({
+            scope: 'profile_nickname, account_email, gender',
             succcess: function(authObj){
-            console.log(authObj);
-            window.kakao.API.request({
-                url: '/v2/user/me',
-                succcess: res=>{
-                    const kakao_account = res.kakao.account;
-                    console.log(kakao_account);
+                console.log(authObj);
+                window.Kakao.API.request({
+                    url: '/v2/user/me',
+                    succcess: res=>{
+                        const kakao_account = res.kakao_account;
+                        console.log(kakao_account);
+                    }
                 }
-            }
             )}
         }); 
     }
-
 </script>
 </html>
