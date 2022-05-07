@@ -13,7 +13,6 @@ class User(models.Model):
     sex = models.CharField(max_length=1, choices=SEX_CHOICES)
     phone = models.CharField(max_length=20)
     description = models.CharField(max_length=100, null=True)
-    credit = models.IntegerField()
 
     class Meta:
         db_table = 'users'

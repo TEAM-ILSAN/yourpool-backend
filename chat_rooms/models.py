@@ -34,6 +34,7 @@ class ChatRoom(models.Model):
     status = models.IntegerField(choices=status_choices)
     start_time = models.DateTimeField(auto_now_add=True)
     end_time = models.DateTimeField()
+    chat_member = models.JSONField()
 
     class Meta:
         db_table = 'chat_rooms'
