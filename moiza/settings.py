@@ -69,6 +69,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
 ]
+SITE_ID = 1
 
 ROOT_URLCONF = 'moiza.urls'
 
