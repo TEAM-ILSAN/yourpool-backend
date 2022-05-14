@@ -299,3 +299,5 @@ Temporary Items
 
 /moiza/pyvenv.cfg
 /moiza/bin
+
+secrets.json
