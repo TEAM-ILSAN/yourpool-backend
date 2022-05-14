@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 import environ
+import json
 import os
 
 from pathlib import Path
@@ -20,11 +21,15 @@ env = environ.Env(
 )
 
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+
+secret_file = os.path.join(BASE_DIR, "secrets.json")
+secrets = None
+with open(secret_file) as f:
+    secrets = json.loads(f.read())
 
 
 # Quick-start development settings - unsuitable for production
@@ -49,10 +54,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
+    'rest_framework',
     'corsheaders',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
     'users',
     'chat_rooms',
     'items',
@@ -174,4 +177,8 @@ CORS_ALLOW_HEADERS = (
     'x-requested-with'
 )
 
-
+SOCIAL_OUTH_CONFIG = {
+    'KAKAO_REST_API_KEY': secrets['KAKAO_REST_API_KEY'],
+    'KAKAO_REDIRECT_URI': secrets['KAKAO_REDIRECT_URI'],
+    'KAKAO_SECRET_KEY': secrets['KAKAO_SECRET_KEY']
+}
