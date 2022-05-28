@@ -75,34 +75,3 @@ def kakao_callback(request):
             jwt_token = jwt.encode({'id': user.id}, SECRET_KEY, JWT_ALGORITHM)
 
     return JsonResponse({"user_info": user_info_response.json(), "access_token": access_token})
-
-
-# class UserLoginView(APIView):
-#     permission_classes = [permissions.AllowAny]
-
-#     def post(self, request):
-#         try:
-#             kakao_token = request.headers['Authorization']
-#             kakao_user = KaKaoLoginView().get()
-#             kakao_account = kakao_user['kakao_account']
-#             kakao_id = kakao_user['user_info']['id']
-#             name = kakao_account['profile']['nickname']
-#             email = kakao_account['email']
-#             gender = kakao_account['gender']
-
-#             user, created = User.objects.get_or_create(
-#                 kakao_id=kakao_id,
-#                 name=name,
-#                 email=email,
-#                 gender=gender
-#             )
-
-#             jwt_token = jwt.encode({'id': user.id}, SECRET_KEY, JWT_ALGORITHM)
-
-#             return JsonResponse({"message": "SUCCESS", "access_token": jwt_token}, status=200)
-
-#         except KeyError:
-#             return JsonResponse({"message": "KEY_ERROR"}, status=400)
-
-#         except ValidationError as e:
-#             return JsonResponse({"message": e.message}, status=400)
