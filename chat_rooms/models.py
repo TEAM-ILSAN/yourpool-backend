@@ -1,8 +1,4 @@
-from secrets import choice
-from tkinter import CASCADE
 from django.db import models
-from django.forms import IntegerField
-from users.models import User
 
 class ChatRoom(models.Model):
     CATEGORY_CHOICES = [
