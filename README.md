@@ -11,9 +11,7 @@ $ pip3 install --upgrade --ignore-installed pip setuptools
 ```
 $ pip install -r requirements.txt
 $ brew install postgresql
-$ pip install djangorestframework
 $ brew install python-tk
-$ pip install requests
 ```
 
 ## Setup Local .env, secrets.json
