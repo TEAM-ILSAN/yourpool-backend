@@ -1,19 +1,12 @@
 import requests
 
 from django.http import JsonResponse
-from django.core.exceptions import ValidationError
 from django.shortcuts import redirect
-from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework import permissions
 
-from moiza.settings import SECRET_KEY, SOCIAL_OUTH_CONFIG, JWT_ALGORITHM
+from moiza.settings import SOCIAL_OUTH_CONFIG
 from .models import User
-
-
-def empty(request):
-    return render(request, 'users/empty.html')
-
 
 class KaKaoLoginView(APIView):
     permission_classes = [permissions.AllowAny]
