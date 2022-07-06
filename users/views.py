@@ -1,5 +1,4 @@
 import requests
-import jwt
 
 from django.http import JsonResponse
 from django.core.exceptions import ValidationError
@@ -65,13 +64,11 @@ def kakao_callback(request):
                 nickname=user_kakao_nickname,
                 gender=gender
             )
-            jwt_token = jwt.encode({'id': user.id}, SECRET_KEY, JWT_ALGORITHM)
         else:
             user = User.objects.create(
                 kakao_id=kakao_id,
                 email=user_kakao_email,
                 nickname=user_kakao_nickname
             )
-            jwt_token = jwt.encode({'id': user.id}, SECRET_KEY, JWT_ALGORITHM)
 
     return JsonResponse({"user_info": user_info_response.json(), "access_token": access_token})
