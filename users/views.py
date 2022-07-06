@@ -42,23 +42,28 @@ def kakao_callback(request):
 
     json_kakao_user_info = user_info_response.json()
 
+    # Get user information
     user_kakao_email = json_kakao_user_info["kakao_account"]["email"]
     user_kakao_nickname = json_kakao_user_info["kakao_account"]["profile"]["nickname"]
     kakao_id = json_kakao_user_info["id"]
 
+    # Saving user information to a database
+    # If there is no user gender information, save as null
     try:
         User.objects.get(email=user_kakao_email)
+    
     except User.DoesNotExist:
         if json_kakao_user_info["kakao_account"]["has_gender"] == True:
             gender = json_kakao_user_info["kakao_account"]["gender"]
-            user = User.objects.create(
+            
+            User.objects.create(
                 kakao_id=kakao_id,
                 email=user_kakao_email,
                 nickname=user_kakao_nickname,
                 gender=gender
             )
         else:
-            user = User.objects.create(
+            User.objects.create(
                 kakao_id=kakao_id,
                 email=user_kakao_email,
                 nickname=user_kakao_nickname
