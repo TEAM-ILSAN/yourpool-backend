@@ -28,3 +28,8 @@ $ docker run --name some-postgres -e POSTGRES_PASSWORD={password} -p 5432:5432 -
 $ python manage.py migrate
 $ python manage.py runserver 
 ```
+
+## Endpoints
+
+- kakao social login
+  `http://<host>:8000/users/login/kakao`

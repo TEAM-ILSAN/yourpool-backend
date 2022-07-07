@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class ChatRoom(models.Model):
     CATEGORY_CHOICES = [
         ('COFFEECHAT', '커피챗'),
@@ -21,7 +22,7 @@ class ChatRoom(models.Model):
     room_category = models.CharField(max_length=15, choices=CATEGORY_CHOICES)
     room_name = models.CharField(max_length=50)
     description = models.CharField(max_length=100)
-    num_choices = zip( range(1,8), range(1,8) )
+    num_choices = zip(range(1, 8), range(1, 8))
     limit = models.IntegerField(choices=num_choices, blank=True)
     status_choices = [
         ('0', 'off'),
@@ -34,4 +35,3 @@ class ChatRoom(models.Model):
 
     class Meta:
         db_table = 'chat_rooms'
-
