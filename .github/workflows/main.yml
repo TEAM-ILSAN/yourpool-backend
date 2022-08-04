@@ -57,7 +57,5 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_TOKEN }}
       # 3000 -> 80 포트로 수행하도록 지정
-      - name: Docker run
-        run: |
-          docker stop ${{ env.NAME }} && docker rm ${{ env.NAME }} && docker rmi ${{ env.DOCKER_IMAGE }}:latest
-          docker-compose up --build
+      - name: Docker compose up
+        run: docker-compose up -d
