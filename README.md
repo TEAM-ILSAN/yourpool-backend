@@ -1,4 +1,4 @@
-# Moiza Backend
+# Moiza backend
 
 ## Docker start
 ```
