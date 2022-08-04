@@ -1,3 +1,14 @@
+## Docker start
+```
+$ docker-compose up --build
+```
+
+### Postgresql SCRAM authentication problem? (M1-Based mac)
+```
+$ export DOCKER_DEFAULT_PLATFORM=linux/amd64
+```
+
+
 ## Setup python tools
 ```
 $ brew install python@3.9
