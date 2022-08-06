@@ -59,5 +59,11 @@ jobs:
           password: ${{ secrets.GHCR_TOKEN }}
       # 3000 -> 80 포트로 수행하도록 지정
       - name: Docker compose up
-        run: docker-compose up -d
-        working-directory: ${{ env.working-directory }}
+      - uses: actions/checkout@v3
+      - uses: isbang/compose-action@v1.1.0
+        with:
+          compose-file: "./docker/docker-compose.yml"
+          down-flags: "--volumes"
+          services: |
+            helloworld2
+            helloworld3
