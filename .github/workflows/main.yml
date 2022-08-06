@@ -10,6 +10,7 @@ env:
   DOCKER_IMAGE: ghcr.io/${{ github.actor }}/moiza
   VERSION: ${{ github.sha }}
   NAME: go_cicd
+  working-directory: ./moiza-backend
 
 jobs:
   # 빌드 Job
@@ -59,3 +60,4 @@ jobs:
       # 3000 -> 80 포트로 수행하도록 지정
       - name: Docker compose up
         run: docker-compose up -d
+        working-directory: ${{ env.working-directory }}
