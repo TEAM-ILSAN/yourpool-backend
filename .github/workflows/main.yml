@@ -66,5 +66,4 @@ jobs:
           compose-file: "./docker/docker-compose.yml"
           down-flags: "--volumes"
           services: |
-            helloworld2
-            helloworld3
+            docker-compose up --build
