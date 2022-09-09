@@ -1,4 +1,10 @@
+from asyncio import constants
+from calendar import c
+from pdb import post_mortem
+from turtle import rt
+from urllib import response
 import requests
+
 
 from django.http import JsonResponse
 from django.shortcuts import redirect
@@ -34,7 +40,6 @@ def kakao_callback(request):
     }
 
     token_response = requests.post(kakao_token_api, data=data)
-
     access_token = token_response.json().get('access_token')
 
     user_info_response = requests.get("https://kapi.kakao.com/v2/user/me", headers={
@@ -68,5 +73,40 @@ def kakao_callback(request):
                 email=user_kakao_email,
                 nickname=user_kakao_nickname
             )
-
     return JsonResponse({"user_info": user_info_response.json(), "access_token": access_token})
+
+
+def updateroom(request):   
+    print(request.GET)
+
+
+
+
+# 위치값 저장 (req = 위도, 경도, 유저번호 / ret = true, false)
+def updategeo(request):
+
+    # url에서 받는 정보 
+    req_lat = request.GET.get('lat')
+    req_lon = request.GET.get('lon')
+    req_uid = request.GET.get('uid')
+    
+    # 카카오 id로 조회한 유저의 값(젠더, 주소)를 저장 (update)
+    kakao_user = User.objects.get(id=req_uid)
+    kakao_user.lat = req_lat
+    kakao_user.lon = req_lon
+    kakao_user.save()
+    
+    # 저장이 잘 되었는지 확인
+    checkUser = User.objects.get(id=req_uid)         
+    print(type(checkUser.lon))
+    print(type(req_lon))
+
+    if(str(checkUser.lon) in req_lon):
+        rt = "true"
+    else:
+        rt = "false"
+
+    return JsonResponse({"rt":rt}) 
+
+
+

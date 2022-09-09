@@ -17,21 +17,26 @@ class ChatRoom(models.Model):
         ('FOOD', '밥친구')
     ]
 
-    user = models.ManyToManyField("users.user")
-    area = models.CharField(max_length=50)
-    room_category = models.CharField(max_length=15, choices=CATEGORY_CHOICES)
-    room_name = models.CharField(max_length=50)
-    description = models.CharField(max_length=100)
-    num_choices = zip(range(1, 8), range(1, 8))
-    limit = models.IntegerField(choices=num_choices, blank=True)
-    status_choices = [
+    # user = models.ManyToManyField("users.User")                                       # 방장번호
+    kakao_id = models.CharField(max_length=50)                                          # 방장번호
+    area = models.CharField(max_length=50, null=True)                                   # 한글 지역?  / lat과 lon의 차이가 있나? 필요 없으면 지우기 
+    lat = models.DecimalField(max_digits=1000,decimal_places=6, null=True)                  # 위도
+    lon = models.DecimalField(max_digits=1000,decimal_places=6, null=True)                  # 경도
+    room_category = models.CharField(max_length=15, choices=CATEGORY_CHOICES)               # 카테고리
+    room_name = models.CharField(max_length=50)                                             # 방제목
+    description = models.CharField(max_length=100)                                          # 소개  
+    num_choices = zip(range(1, 8), range(1, 8))                                             # ?
+    limit = models.IntegerField(choices=num_choices, blank=True, null=True)                 # 폭파시점
+    status_choices = [                                                                      # 방상태
         ('0', 'off'),
         ('1', 'on'),
+        ('2', 'start'),                                                                     # start는 만남이 시작되는 방 => 볼 수 없음
     ]
-    status = models.IntegerField(choices=status_choices)
-    start_time = models.DateTimeField(auto_now_add=True)
-    end_time = models.DateTimeField()
-    chat_member = models.JSONField()
+    status = models.IntegerField(choices=status_choices)                                    # 상태
+    start_time = models.DateTimeField(auto_now_add=True)                                    # 시작시간
+    meet_time = models.DateTimeField()                                                      # 만날시간
+    end_time = models.DateTimeField()                                                       # 종료시간
+    chat_member = models.JSONField(null=True)                                               # 입장한 유저번호
 
     class Meta:
         db_table = 'chat_rooms'
