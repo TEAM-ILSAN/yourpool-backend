@@ -50,7 +50,7 @@ def newChat(request):
     
     #카카오 id로 조회한 유저의 값(젠더, 주소)를 저장 (update)
     newroom = ChatRoom.objects.create(
-        kakao_id = uid,
+        user = uid,
         area = Area,
         lat = Lat,
         lon = Lon,
@@ -66,7 +66,7 @@ def newChat(request):
 
     newroom.save()
 
-    checkRoom = ChatRoom.objects.filter(room_name=roomName, kakao_id=uid).values()
+    checkRoom = ChatRoom.objects.filter(room_name=roomName, user=uid).values()
     print(checkRoom)
     print(len(checkRoom))
     if(len(checkRoom) < 1):
@@ -83,7 +83,7 @@ def newChat(request):
 def selectRoom(request):
     req_uid = request.GET.get('uid')    
     req_uid = str(req_uid)
-    userinfo =  ChatRoom.objects.filter(kakao_id=req_uid, status=1)
+    userinfo =  ChatRoom.objects.filter(user=req_uid, status=1)
     userLon = 0.0
     count = 0
 
@@ -149,7 +149,7 @@ def chatList(request):
     req_uid = request.GET.get('uid')  
     # req_uid = str(req_uid)
     # chat_member에 uid 포함 + status = 1,2인 리스트 출력 해야함!!!!!!!! 밑은 테스트 용이라서 3임
-    select = ChatRoom.objects.filter(status__in=[3],kakao_id=req_uid) | ChatRoom.objects.filter(status__in=[3],).values()
+    select = ChatRoom.objects.filter(status__in=[3],user=req_uid) | ChatRoom.objects.filter(status__in=[3],).values()
     table__data__length__isnull=True,
     # print(select)
     if(len(select)>=1):
