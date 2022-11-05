@@ -17,7 +17,7 @@ class ChatRoom(models.Model):
         ('FOOD', '밥친구')
     ]
 
-    user = models.ManyToManyField("users.user")
+    user = models.ManyToManyField("users.YourPoolUser")
     area = models.CharField(max_length=50)
     room_category = models.CharField(max_length=15, choices=CATEGORY_CHOICES)
     room_name = models.CharField(max_length=50)

@@ -1,8 +1,9 @@
-
+# from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django.urls import path
-from users.views import KaKaoLoginView, kakao_callback
+from .views import SignupView
+
 
 urlpatterns = [
-    path('login/kakao', KaKaoLoginView.as_view()),
-    path('kakao/login/callback/', kakao_callback)
+    path("signup/", SignupView.as_view(), name="signup"),
+    # path("login/", RegistrationAPIView.as_view(), name="register"),
 ]
