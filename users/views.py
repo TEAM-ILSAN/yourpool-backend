@@ -1,72 +1,131 @@
-import requests
+import json, uuid
 
 from django.http import JsonResponse
-from django.shortcuts import redirect
-from rest_framework.views import APIView
-from rest_framework import permissions
+from django.contrib import messages
+from django.contrib.auth import authenticate
+from django.views import View
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
-from moiza.settings import SOCIAL_OUTH_CONFIG
-from .models import User
+from validate_email import validate_email
+from rest_framework import generics, status, serializers
+from rest_framework.response import Response
 
-# class KaKaoLoginView(APIView):
-#     permission_classes = [permissions.AllowAny]
+from users.serializers import SignupSerializer
 
-#     def get(self, request):
-#         app_key = SOCIAL_OUTH_CONFIG['KAKAO_REST_API_KEY']
-#         redirect_uri = SOCIAL_OUTH_CONFIG['KAKAO_REDIRECT_URI']
-#         kakao_auth_api = "https://kauth.kakao.com/oauth/authorize?response_type=code"
-
-#         return redirect(
-#             "{kakao_auth_api}&client_id={app_key}&redirect_uri={redirect_uri}".format(
-#                 kakao_auth_api=kakao_auth_api, app_key=app_key, redirect_uri=redirect_uri)
-#         )
+from .models import YourPoolUser
 
 
-# def kakao_callback(request):
-#     auth_code = request.GET.get('code')
-#     kakao_token_api = "https://kauth.kakao.com/oauth/token"
-#     data = {
-#         'grant_type': 'authorization_code',
-#         'client_id': SOCIAL_OUTH_CONFIG['KAKAO_REST_API_KEY'],
-#         'redirect_url': SOCIAL_OUTH_CONFIG['KAKAO_REDIRECT_URI'],
-#         'client_secret': SOCIAL_OUTH_CONFIG['KAKAO_SECRET_KEY'],
-#         'code': auth_code
-#     }
+class SignupView(generics.GenericAPIView):
+    serializer_class = SignupSerializer
 
-#     token_response = requests.post(kakao_token_api, data=data)
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {
+                    "RequestId": str(uuid.uuid4()),
+                    "Message": "User created successfully",
+                    "User": serializer.data,
+                },
+                status=status.HTTP_201_CREATED,
+            )
 
-#     access_token = token_response.json().get('access_token')
+        return Response(
+            {"errors": serializers.errors}, status=status.HTTP_400_BAD_REQUEST
+        )
 
-#     user_info_response = requests.get("https://kapi.kakao.com/v2/user/me", headers={
-#         "Authorization": "Bearer {access_token}".format(access_token=access_token)})
 
-#     json_kakao_user_info = user_info_response.json()
+# @method_decorator(csrf_exempt, name="dispatch")
+# class Register(View):
+#     def post(self, request):
+#         try:
+#             data = json.loads(request.body)
 
-#     # Get user information
-#     user_kakao_email = json_kakao_user_info["kakao_account"]["email"]
-#     user_kakao_nickname = json_kakao_user_info["kakao_account"]["profile"]["nickname"]
-#     kakao_id = json_kakao_user_info["id"]
+#             email = data["email"]
+#             username = data["username"]
+#             gender = data["gender"]
+#             area = data["area"]
+#             password = data["password"]
+#             password2 = data["password2"]
 
-#     # Saving user information to a database
-#     # If there is no user gender information, save as null
-#     try:
-#         User.objects.get(email=user_kakao_email)
-    
-#     except User.DoesNotExist:
-#         if json_kakao_user_info["kakao_account"]["has_gender"] == True:
-#             gender = json_kakao_user_info["kakao_account"]["gender"]
-            
-#             User.objects.create(
-#                 kakao_id=kakao_id,
-#                 email=user_kakao_email,
-#                 nickname=user_kakao_nickname,
-#                 gender=gender
+#             # Error when password is less than 8 characters
+#             if len(password) < 8:
+#                 messages.add_message(
+#                     request, messages.ERROR, "Password should be at least 6 characters"
+#                 )
+#                 return JsonResponse({"message": "PASSWORD_LENGTH_ERROR"}, status=401)
+
+#             # Confirm password
+#             if password != password2:
+#                 messages.add_message(request, messages.ERROR, "Password mismatch")
+#                 return JsonResponse(
+#                     {"message": "CONFIRMATION_PASSWORD_MISMATCH"}, status=401
+#                 )
+
+#             if not validate_email(email):
+#                 messages.add_message(
+#                     request, messages.ERROR, "Enter a valid email address"
+#                 )
+#                 return JsonResponse({"message": "EMAIL_FORMAT_ERROR"}, status=401)
+
+#             # Error when user name alreay exists
+#             if YourPoolUser.objects.filter(username=username).exists():
+#                 messages.add_message(
+#                     request, messages.ERROR, "Username is taken, choose another one"
+#                 )
+#                 return JsonResponse({"message": "USERNAME_ALREADY_EXIST"}, status=400)
+
+#             # Error when email alreay exists
+#             if YourPoolUser.objects.filter(email=email).exists():
+#                 messages.add_message(
+#                     request, messages.ERROR, "Email is taken, choose another one"
+#                 )
+#                 return JsonResponse({"message": "EMAIL_ALREADY_EXIST"}, status=400)
+
+#             if not gender == "F":
+#                 if gender == "M":
+#                     return JsonResponse({"message": "ONLY_WOMEN_CAN_JOIN"}, status=400)
+#                 else:
+#                     return JsonResponse(
+#                         {"message": "GENDER_FORMAT_INCORRECT"}, status=400
+#                     )
+
+#             user = YourPoolUser.objects.create_user(
+#                 username=username, email=email, gender=gender, area=area
 #             )
-#         else:
-#             User.objects.create(
-#                 kakao_id=kakao_id,
-#                 email=user_kakao_email,
-#                 nickname=user_kakao_nickname
-#             )
+#             user.set_password(password)
+#             user.save()
 
-#     return JsonResponse({"user_info": user_info_response.json(), "access_token": access_token})
+#             messages.add_message(
+#                 request, messages.SUCCESS, "Account created, you can now login"
+#             )
+#             return JsonResponse({"message": "REGISTER_SUCCESS"}, status=201)
+
+#         except KeyError:
+#             return JsonResponse({"message": "KEY_ERROR"}, status=400)
+
+#         except json.decoder.JSONDecodeError:
+#             return JsonResponse({"MESSAGE": "JSONDecodeError"}, status=400)
+
+
+# @method_decorator(csrf_exempt, name="dispatch")
+# class Signin(View):
+#     def post(self, request):
+#         try:
+#             data = json.loads(request.body)
+
+#             email = data["email"]
+#             password = data["password"]
+
+#             if not YourPoolUser.objects.filter(email=email).exists():
+
+
+#             return JsonResponse({"message": "SIGNIN_SUCCESS"}, status=200)
+
+#         except KeyError:
+#             return JsonResponse({"message": "KEY_ERROR"}, status=400)
+
+#         except json.decoder.JSONDecodeError:
+#             return JsonResponse({"MESSAGE": "JSONDecodeError"}, status=400)
