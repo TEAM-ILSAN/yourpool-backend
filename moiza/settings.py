@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'chat_rooms',
     'items',
     'report',
+    'evaluations',
 ]
 
 MIDDLEWARE = [
@@ -133,13 +134,17 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
+
+
 LANGUAGE_CODE = 'ko-kr'
 
 TIME_ZONE = 'Asia/Seoul'
 
 USE_I18N = True
 
-USE_TZ = True
+USE_L10N = True
+
+USE_TZ = False          # 이게 False여야 한국 시간으로 됨 
 
 
 # Static files (CSS, JavaScript, Images)

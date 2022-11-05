@@ -2,6 +2,7 @@ from django.db import models
 
 
 class ChatRoom(models.Model):
+    room_id = models.AutoField(primary_key=True)
     CATEGORY_CHOICES = [
         ('COFFEECHAT', '커피챗'),
         ('SPORT', '운동'),
@@ -40,3 +41,13 @@ class ChatRoom(models.Model):
 
     class Meta:
         db_table = 'chat_rooms'
+
+
+class Chat_log(models.Model):   
+    room_id = models.IntegerField()                                                         # chat_rooms의 id 값 가져와서 넣기
+    meet_time = models.DateTimeField()                                                      # 만난 시간
+    chat_member = models.JSONField(null=True)                                               # 입장한 유저번호
+    room_name = models.CharField(max_length=50)                                             # 방제목
+
+    class Meta:
+        db_table = 'chat_log'
