@@ -20,14 +20,16 @@ class SignupView(generics.GenericAPIView):
     serializer_class = SignupSerializer
 
     def post(self, request):
+        # 유저 정보가 이미 존재하는 지 아닌지 판단
         serializer = self.get_serializer(data=request.data)
+        # 유저 정보가 존재하지 않는다면 새로운 유저를 만드는데 성공한다.
         if serializer.is_valid():
             serializer.save()
             return Response(
                 {
-                    "RequestId": str(uuid.uuid4()),
-                    "Message": "User created successfully",
-                    "User": serializer.data,
+                    "request_id": str(uuid.uuid4()),
+                    "message": "User created successfully",
+                    "user": serializer.data,
                 },
                 status=status.HTTP_201_CREATED,
             )
@@ -37,95 +39,20 @@ class SignupView(generics.GenericAPIView):
         )
 
 
-# @method_decorator(csrf_exempt, name="dispatch")
-# class Register(View):
-#     def post(self, request):
-#         try:
-#             data = json.loads(request.body)
+class LoginView(generics.GenericAPIView):
+    def post(self, request):
 
-#             email = data["email"]
-#             username = data["username"]
-#             gender = data["gender"]
-#             area = data["area"]
-#             password = data["password"]
-#             password2 = data["password2"]
+        data = json.loads(request.body)
 
-#             # Error when password is less than 8 characters
-#             if len(password) < 8:
-#                 messages.add_message(
-#                     request, messages.ERROR, "Password should be at least 6 characters"
-#                 )
-#                 return JsonResponse({"message": "PASSWORD_LENGTH_ERROR"}, status=401)
+        email = data["email"]
+        password = data["password"]
 
-#             # Confirm password
-#             if password != password2:
-#                 messages.add_message(request, messages.ERROR, "Password mismatch")
-#                 return JsonResponse(
-#                     {"message": "CONFIRMATION_PASSWORD_MISMATCH"}, status=401
-#                 )
+        user = authenticate(request, email=email, password=password)
 
-#             if not validate_email(email):
-#                 messages.add_message(
-#                     request, messages.ERROR, "Enter a valid email address"
-#                 )
-#                 return JsonResponse({"message": "EMAIL_FORMAT_ERROR"}, status=401)
+        if not user:
+            messages.add_message(request, messages.ERROR, "invalid credentails")
+            return Response(
+                {"message": "invalid credentails"}, status=status.HTTP_401_UNAUTHORIZED
+            )
 
-#             # Error when user name alreay exists
-#             if YourPoolUser.objects.filter(username=username).exists():
-#                 messages.add_message(
-#                     request, messages.ERROR, "Username is taken, choose another one"
-#                 )
-#                 return JsonResponse({"message": "USERNAME_ALREADY_EXIST"}, status=400)
-
-#             # Error when email alreay exists
-#             if YourPoolUser.objects.filter(email=email).exists():
-#                 messages.add_message(
-#                     request, messages.ERROR, "Email is taken, choose another one"
-#                 )
-#                 return JsonResponse({"message": "EMAIL_ALREADY_EXIST"}, status=400)
-
-#             if not gender == "F":
-#                 if gender == "M":
-#                     return JsonResponse({"message": "ONLY_WOMEN_CAN_JOIN"}, status=400)
-#                 else:
-#                     return JsonResponse(
-#                         {"message": "GENDER_FORMAT_INCORRECT"}, status=400
-#                     )
-
-#             user = YourPoolUser.objects.create_user(
-#                 username=username, email=email, gender=gender, area=area
-#             )
-#             user.set_password(password)
-#             user.save()
-
-#             messages.add_message(
-#                 request, messages.SUCCESS, "Account created, you can now login"
-#             )
-#             return JsonResponse({"message": "REGISTER_SUCCESS"}, status=201)
-
-#         except KeyError:
-#             return JsonResponse({"message": "KEY_ERROR"}, status=400)
-
-#         except json.decoder.JSONDecodeError:
-#             return JsonResponse({"MESSAGE": "JSONDecodeError"}, status=400)
-
-
-# @method_decorator(csrf_exempt, name="dispatch")
-# class Signin(View):
-#     def post(self, request):
-#         try:
-#             data = json.loads(request.body)
-
-#             email = data["email"]
-#             password = data["password"]
-
-#             if not YourPoolUser.objects.filter(email=email).exists():
-
-
-#             return JsonResponse({"message": "SIGNIN_SUCCESS"}, status=200)
-
-#         except KeyError:
-#             return JsonResponse({"message": "KEY_ERROR"}, status=400)
-
-#         except json.decoder.JSONDecodeError:
-#             return JsonResponse({"MESSAGE": "JSONDecodeError"}, status=400)
+        return Response({"message": "login success"}, status=status.HTTP_200_OK)

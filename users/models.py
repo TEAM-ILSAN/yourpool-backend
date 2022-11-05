@@ -4,6 +4,8 @@ from django.contrib.auth.models import AbstractUser
 
 
 class YourPoolUser(AbstractUser):
+    first_name = None
+    last_name = None
     GENDER_CHOICES = (("M", "Male"), ("F", "Female"))
     area = models.CharField(max_length=50)
     gender = models.CharField(max_length=50, choices=GENDER_CHOICES, default="F")
