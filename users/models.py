@@ -2,15 +2,28 @@ from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.models import AbstractUser
 
+from .manage import UserManager
+
 
 class YourPoolUser(AbstractUser):
+    GENDER_CHOICES = (("M", "Male"), ("F", "Female"))
+
     first_name = None
     last_name = None
-    GENDER_CHOICES = (("M", "Male"), ("F", "Female"))
+    username = None
+
+    email = models.EmailField(unique=True)
+    is_email_verified = models.BooleanField(default=False)
+    otp = models.CharField(max_length=6, null=True, blank=True)
+    nickname = models.CharField(max_length=50, default="")
     area = models.CharField(max_length=50)
     gender = models.CharField(max_length=50, choices=GENDER_CHOICES, default="F")
-    is_email_verified = models.BooleanField(default=False)
     description = models.CharField(max_length=100, null=True)
+
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = []
+
+    objects = UserManager()
 
     def __str__(self):
         return self.email
