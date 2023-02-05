@@ -1,8 +1,13 @@
+import jwt
+
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.models import AbstractUser
 
+from datetime import datetime, timedelta
+
 from .manage import UserManager
+from yourpool.settings import SECRET_KEY
 
 
 class YourPoolUser(AbstractUser):
@@ -27,6 +32,20 @@ class YourPoolUser(AbstractUser):
 
     def __str__(self):
         return self.email
+
+    @property
+    def token(self):
+        token = jwt.encode(
+            {
+                "username": self.nickname,
+                "email": self.email,
+                "exp": datetime.utcnow() + timedelta(hours=24),
+            },
+            SECRET_KEY,
+            algorithm="HS256",
+        )
+
+        return token
 
 
 class UserItem(models.Model):

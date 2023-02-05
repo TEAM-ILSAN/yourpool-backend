@@ -1,22 +1,31 @@
+import jwt
+
+from django.contrib.auth import authenticate
+
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.generics import GenericAPIView
+from rest_framework import status
 
-from .serializers import UserSerializer, VerifyAccountSerializer
+from smtplib import SMTPException
+
+from .serializers import SignupSerializer, VerifyAccountSerializer, LogininSerializer
 from .emails import send_otp_via_email
 from .models import YourPoolUser
 
 
-class SignupView(APIView):
+class SignupView(GenericAPIView):
+    serializer_class = SignupSerializer
+
     def post(self, request):
         try:
-            data = request.data
-            serializer = UserSerializer(data=data)
+            serializer = self.serializer_class(data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 send_otp_via_email(serializer.data["email"])
                 return Response(
                     {
-                        "status": 200,
+                        "status": 201,
                         "message": "registration successfully check email",
                         "data": serializer.data,
                     }
@@ -28,8 +37,14 @@ class SignupView(APIView):
                     "data": serializer.errors,
                 }
             )
-        except Exception as e:
-            print(e)
+        except SMTPException as e:
+            return Response(
+                {
+                    "status": e.smtp_code,
+                    "message": e.smtp_error,
+                    "data": serializer.errors,
+                }
+            )
 
 
 class VerifyOTP(APIView):
@@ -80,3 +95,23 @@ class VerifyOTP(APIView):
             )
         except Exception as e:
             print(e)
+
+
+class LoginView(GenericAPIView):
+    serializer_class = LogininSerializer
+
+    def post(self, request):
+        email = request.data.get("email", None)
+        password = request.data.get("password", None)
+
+        user = authenticate(username=email, password=password)
+
+        if user and user.is_email_verified:
+            serializer = self.serializer_class(user)
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(
+            {"message": "Invalid credentials, try again"},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
