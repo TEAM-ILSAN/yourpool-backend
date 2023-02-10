@@ -16,8 +16,9 @@ import time
 from django.utils import timezone
 # Create your views here.
 
-
+# http://localhost:8000/chat/newChat/?category=%EC%9A%B4%EB%8F%99&uid=3&lat=33.777777&lon=126.111111&area=%EB%B0%B1%EC%84%9D%EB%8F%99&room_name=hi&description=jojo&limit=3&meet_time=2023-02-05%2013:35:42.657813
 #http://localhost:8000/chat/newChat/?category=운동&uid=3&lat=33.777777&lon=126.111111&area=백석동&room_name=hi&description=jojo&num_choices=1&limit=3&meet_time=2022-09-10%2013:35:42.657813
+# 방만들기
 def newChat(request):
     category = request.GET.get('category')
     uid = request.GET.get('uid')
@@ -50,7 +51,7 @@ def newChat(request):
     
     #카카오 id로 조회한 유저의 값(젠더, 주소)를 저장 (update)
     newroom = ChatRoom.objects.create(
-        kakao_id = uid,
+        user = uid,
         area = Area,
         lat = Lat,
         lon = Lon,
@@ -66,7 +67,7 @@ def newChat(request):
 
     newroom.save()
 
-    checkRoom = ChatRoom.objects.filter(room_name=roomName, kakao_id=uid).values()
+    checkRoom = ChatRoom.objects.filter(room_name=roomName, user=uid).values()
     print(checkRoom)
     print(len(checkRoom))
     if(len(checkRoom) < 1):
@@ -77,13 +78,16 @@ def newChat(request):
 
     return JsonResponse({"rt": rt})
 
+
+
+
     
-# 나의 위도의 소숫점 2자리까지 일치 +-1 숫자까지 조회하여 반환(.44 => .43~.45)(req = lod(경도) / ret = 조회한 사람 list, true or false)
+# 나의 위도의 소숫점 2자리까지 일치 +-1 숫자까지 조회하여 반환(1.44 => 1.43 ~ 1.45)(req = uid / ret = 조회한 사람 list, true or false)
 #http://localhost:8000/chat/selectRoom/?uid=49
 def selectRoom(request):
     req_uid = request.GET.get('uid')    
     req_uid = str(req_uid)
-    userinfo =  ChatRoom.objects.filter(kakao_id=req_uid, status=1)
+    userinfo =  ChatRoom.objects.filter(user=req_uid, status=1) # 유저 정보 가져오기 위해서 
     userLon = 0.0
     count = 0
 
@@ -93,7 +97,6 @@ def selectRoom(request):
 
     userLon = float(userLon)
     if(userLon == 0.0):
-        print('flase')
         rt = "false"
         return JsonResponse({"rt": rt, "info":"null"})
 
@@ -103,27 +106,31 @@ def selectRoom(request):
 
     # print(userLon)
     people = list(ChatRoom.objects.values().filter(lon__range=(userLon0, userLon1)).values())
-    print(people)
+    # print(people)
     count = len(people)
-    print(count)
+    # print(count)
     if(count >= 1):
-        print("true")
+        # print("true")
         rt = "true"
     else:
-        print('flase')
+        # print('flase')
         rt = "false"
 
-    return JsonResponse({"rt": rt, "info":people})
+    return JsonResponse({"rt": rt, "message":people})
 
 
 
-# 조회한 유저 채팅방 입장
+# 조회한 채팅방 중에서 채팅방 입장
 # http://localhost:8000/chat/intoRoom/?room_id=29&uid=88
 def intoRoom(request):
     req_uid = request.GET.get('uid')  
     req_roomid = request.GET.get('room_id')    
     req_uid = str(req_uid)
     
+
+    # 이미 내가 들어간 방이었음 예외처리 하기
+
+
     select = ChatRoom.objects.filter(room_id = req_roomid, status=1).values()
     if(len(select)>=1):
         for limit in select.values():
@@ -142,24 +149,61 @@ def intoRoom(request):
 
 
 
+# 조회한 유저 채팅방 퇴장
+# http://localhost:8000/chat/outRoom/?room_id=29&uid=88
+def outRoom(request):
+    req_uid = request.GET.get('uid')  
+    req_roomid = request.GET.get('room_id')    
+    req_uid = str(req_uid)
+    
+    select = ChatRoom.objects.filter(room_id = req_roomid, status__in=[1,2]).values()
+
+    if(len(select)>=1):
+        for limit in select.values():
+            before = limit['chat_member']
+            bb = {v:k for k,v in before.items()}            # chat_member에서 req_uid를 찾아서 dict에서 제거
+            delid = bb.get(req_uid)                         # 없을 경우 예외처리 추가해야 함!!!!!!!!!!!!!!!!
+            before.pop(delid)
+            select.update(chat_member = before)
+            rt = "true"
+    else:
+        rt = "room select error"
+    
+    return JsonResponse({"rt": rt})
+
+
+
 
 # 내가 이용중인 채팅방 리스트
 # http://localhost:8000/chat/chatList/?uid=2
 def chatList(request):
     req_uid = request.GET.get('uid')  
     # req_uid = str(req_uid)
-    # chat_member에 uid 포함 + status = 1,2인 리스트 출력 해야함!!!!!!!! 밑은 테스트 용이라서 3임
-    select = ChatRoom.objects.filter(status__in=[3],kakao_id=req_uid) | ChatRoom.objects.filter(status__in=[3],).values()
-    table__data__length__isnull=True,
-    # print(select)
+    # chat_member에 uid 포함 + status = 1,2인 리스트 출력 해야함!!!!!!!! 밑은 테스트 용이라서 3임           //  chat_member__contains={'1':req_uid} 여기를 최대 인원수까지 설정하면 됨
+    select = ChatRoom.objects.filter(status__in=[1,2],user=req_uid).values() | ChatRoom.objects.filter(status__in=[1,2],chat_member__contains={'1':req_uid}).values()
+    print(select)
     if(len(select)>=1):
+        info =[]
         for rooms in select.values():
-            print(rooms['room_id'])
+            info.append(rooms)
+            # print(rooms['room_id'])
             rt = 'true'
     else:
         rt = "room search error"
     
-    return JsonResponse({"rt": rt})
+    return JsonResponse({"rt": rt, "message": info} )         # 조회된 방 정보 리턴에 담아줘야 함
+
+
+
+
+
+
+
+
+####################    다음주에 할 일
+####################    1. 기존 기능 확인하기. 내가 이용중인 채팅방 리스트 완성하기. 주석 확인하고 조치만 하면 됨. (이용중인 채팅방 리스트 완성도 230129 완료)
+####################    2. 스케줄링까지 확인하고 api 작성하기 (230129 1차로 입력 완료)
+
 
 
 # ==================== 스케줄링 ====================

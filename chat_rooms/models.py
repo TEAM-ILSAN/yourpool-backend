@@ -18,17 +18,16 @@ class ChatRoom(models.Model):
         ('FOOD', '밥친구')
     ]
 
-    # user = models.ManyToManyField("users.User")                                       # 방장번호
-    kakao_id = models.CharField(max_length=50)                                          # 방장번호
-    area = models.CharField(max_length=50, null=True)                                   # 한글 지역?  / lat과 lon의 차이가 있나? 필요 없으면 지우기 
+    user = models.CharField(max_length=50,default='')
+    area = models.CharField(max_length=50,default='')
     lat = models.DecimalField(max_digits=1000,decimal_places=6, null=True)                  # 위도
     lon = models.DecimalField(max_digits=1000,decimal_places=6, null=True)                  # 경도
-    room_category = models.CharField(max_length=15, choices=CATEGORY_CHOICES)               # 카테고리
-    room_name = models.CharField(max_length=50)                                             # 방제목
-    description = models.CharField(max_length=100)                                          # 소개  
-    num_choices = zip(range(1, 8), range(1, 8))                                             # ?
-    limit = models.IntegerField(choices=num_choices, blank=True, null=True)                 # 폭파시점
-    status_choices = [                                                                      # 방상태
+    room_category = models.CharField(max_length=15, choices=CATEGORY_CHOICES)
+    room_name = models.CharField(max_length=50)
+    description = models.CharField(max_length=100)
+    num_choices = zip(range(1, 8), range(1, 8))
+    limit = models.IntegerField(choices=num_choices, blank=True, null=True)
+    status_choices = [
         ('0', 'off'),
         ('1', 'on'),
         ('2', 'start'),                                                                     # start는 만남이 시작되는 방 => 볼 수 없음
