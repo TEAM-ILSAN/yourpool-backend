@@ -1,28 +1,58 @@
-from rest_framework import serializers
+import re
 
 from .models import YourPoolUser
 
+from rest_framework import serializers
+
+from django.contrib.auth import authenticate
+from django.utils.translation import gettext_lazy as _
+from django.contrib.sites.shortcuts import get_current_site
+from django.template.loader import render_to_string
+
 
 class SignupSerializer(serializers.ModelSerializer):
+
+    password = serializers.CharField(min_length=8, write_only=True)
+    
     class Meta:
         model = YourPoolUser
-        fields = ("email", "username", "password", "area", "gender")
+        fields = (
+            "email",
+            "nickname",
+            "password",
+            "area",
+            "gender",
+            "is_email_verified",
+        )
 
-    # client가 입력한 email과 username을 받고 데이터베이스 존재 유무를 판단해 에러를 처리한다.
-    # 만약 존재하지 않는다면 유저를 생성한다.
-    def validate(self, args):
-        email = args.get("email", None)
-        username = args.get("username", None)
+    def validate_password(self, data):
+        
+        PASSWORD_VALIDATION = re.compile('(?=.{8,})(?=.*[a-zA-Z!@#$%^&*()_+~])(?=.*[!@#$%^&*()_+~0-9]).*')
 
-        if YourPoolUser.objects.filter(email=email).exists():
-            raise serializers.ValidationError({"email": ("email already exists")})
-
-        if YourPoolUser.objects.filter(username=username).exists():
+        if not PASSWORD_VALIDATION.match(data):
             raise serializers.ValidationError(
-                {"username": ("user name already exists")}
+                "more than eight digits, Please include at least two English/numeric/symbols."
             )
+        
+        return data 
+    
+    def create(self, validate_data):
+        return YourPoolUser.objects.create_user(**validate_data)
 
-        return super().validate(args)
 
-    def create(self, validated_data):
-        return YourPoolUser.objects.create_user(**validated_data)
+class LogininSerializer(serializers.ModelSerializer):
+        
+    class Meta:
+        model = YourPoolUser
+        fields = (
+            "email",
+            "password",
+            "token",
+            "is_email_verified",
+        )
+        read_only_fields=['token']
+
+class VerifyAccountSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    otp = serializers.CharField()
+    
