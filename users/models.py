@@ -24,6 +24,8 @@ class YourPoolUser(AbstractUser):
     area = models.CharField(max_length=50)
     gender = models.CharField(max_length=50, choices=GENDER_CHOICES, default="F")
     description = models.CharField(max_length=100, null=True)
+    lat = models.DecimalField(max_digits=1000,decimal_places=6, null=True)
+    lon = models.DecimalField(max_digits=1000,decimal_places=6, null=True)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
