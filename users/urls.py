@@ -1,10 +1,9 @@
-# from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django.urls import path
-from .views import SignupView, updategeo
+from .views import SignupView, VerifyOTP, LoginView
 
 
 urlpatterns = [
     path("signup/", SignupView.as_view(), name="signup"),
-    # path("login/", RegistrationAPIView.as_view(), name="register"),
-    path('updategeo/', updategeo),
+    path("login/", LoginView.as_view(), name="login"),
+    path("verify/", VerifyOTP.as_view(), name="verity-otp"),
 ]

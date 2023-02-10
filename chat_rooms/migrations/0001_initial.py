@@ -40,7 +40,7 @@ class Migration(migrations.Migration):
                 ('start_time', models.DateTimeField(auto_now_add=True)),
                 ('meet_time', models.DateTimeField()),
                 ('end_time', models.DateTimeField()),
-                ('chat_member', models.JSONField(null=True)),
+                ('chat_member', models.JSONField()),
             ],
             options={
                 'db_table': 'chat_rooms',

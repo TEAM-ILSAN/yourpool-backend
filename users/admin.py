@@ -1,15 +1,9 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
-
-from .forms import YourPoolUserChangeForm, YourPoolUserCreationForm
-from .models import YourPoolUser
+from users.models import YourPoolUser
 
 
-class YourPoolUserAdmin(UserAdmin):
-    add_form = YourPoolUserCreationForm
-    form = YourPoolUserChangeForm
-    model = YourPoolUser
-    list_display = ["email", "username"]
+class YourPoolUserAdmin(admin.ModelAdmin):
+    list_display = ("email", "nickname", "gender", "area", "is_email_verified")
 
 
 admin.site.register(YourPoolUser, YourPoolUserAdmin)

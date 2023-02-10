@@ -1,7 +1,17 @@
+import jwt
+
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.models import AbstractUser
 
+from datetime import datetime, timedelta
+
+from .manage import UserManager
+from yourpool.settings import SECRET_KEY
+
+
+class YourPoolUser(AbstractUser):
+    GENDER_CHOICES = (("M", "Male"), ("F", "Female"))
 
 class YourPoolUser(AbstractUser):
     first_name = None
